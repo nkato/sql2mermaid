@@ -22,7 +22,7 @@ with bar as (select * from baz)
 select * from foo inner join bar on foo.id = bar.id
 """
 
-txt = sql2mermaid(sql)
+txt = sql2mermaid.convert(sql)
 print(txt)
 ```
 
@@ -56,4 +56,4 @@ You can change the name of the root and whether the FROM, JOIN clause is display
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/nkato/sql2mermaid/blob/main/LICENSE.md) for details
