@@ -3,8 +3,8 @@
 ---
 
 ![PyPI - License](https://img.shields.io/pypi/l/sql2mermaid)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/nkato/sql2mermaid/python-tox.yml?event=push&label=Tests%20with%20Python3.8)
-[![PyPI version](https://badge.fury.io/py/sql2mermaid.svg)](https://badge.fury.io/py/sql2mermaid)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/nkato/sql2mermaid/python-tox.yml?event=push&label=pytest%20with%20py38)
+![PyPI](https://img.shields.io/pypi/v/sql2mermaid)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sql2mermaid)
 
 # sql2mermaid
