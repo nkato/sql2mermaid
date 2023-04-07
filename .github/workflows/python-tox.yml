@@ -1,4 +1,4 @@
-name: Run tox tests
+name: Run tests with tox
 
 on:
   pull_request:

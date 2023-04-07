@@ -2,6 +2,8 @@
 
 ---
 
+![tox badge](https://github.com/nkato/sql2mermaid/actions/workflows/python-tox.yml/badge.svg?event=push)
+
 # sql2mermaid
 
 Convert SQL table dependencies to the text of [mermaid.js](https://mermaid.js.org/) style!
