@@ -1,4 +1,4 @@
-<img src="./img/top-image.png" width="1200px">
+<img src="https://raw.githubusercontent.com/nkato/sql2mermaid/main/img/top-image.png" width="1200px">
 
 ---
 
@@ -48,7 +48,7 @@ You can get a diagram of the table dependencies by pasting this into [Mermaid Li
 
 You can change the name of the root and whether the FROM, JOIN clause is displayed.
 
-<img src="./img/option-example.png" width="1200px">
+<img src="https://raw.githubusercontent.com/nkato/sql2mermaid/main/img/option-example.png" width="1200px">
 
 ## Author
 
