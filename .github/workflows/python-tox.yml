@@ -1,4 +1,4 @@
-name: Tests with Python3.8
+name: Tox Check
 
 on:
   pull_request:
