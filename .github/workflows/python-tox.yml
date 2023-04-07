@@ -1,4 +1,4 @@
-name: Run tests with tox
+name: Tests with Python3.8
 
 on:
   pull_request:
