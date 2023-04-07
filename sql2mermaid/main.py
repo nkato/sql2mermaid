@@ -86,7 +86,7 @@ def generate_mermaid(
     return res
 
 
-def sql2mermaid(query: str, *, root_name: str = "root", display_join: Literal["none", "upper", "lower"] = "none") -> str:
+def convert(query: str, *, root_name: str = "root", display_join: Literal["none", "upper", "lower"] = "none") -> str:
     tables, dependencies = analyze_query(query, root_name)
     internals, leafs = extract_leafs(tables, dependencies)
     mermaid_text = generate_mermaid(internals, leafs, dependencies, display_join)

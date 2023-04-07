@@ -1,4 +1,4 @@
-from .main import sql2mermaid
+from .main import convert
 
-__all__ = ["sql2mermaid"]
+__all__ = ["convert"]
 __version__ = "0.1.0"
