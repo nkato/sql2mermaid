@@ -39,7 +39,7 @@ def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
             table_name = remove_quotes(token.value)
             tables.add(table_name)
             current_table = table_name
-        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value):  # FROM or JOIN
+        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value, parsed[i - 3].value):  # FROM or JOIN
             table_name = remove_quotes(parsed[i + 1].value)
             if not table_name == "(":
                 tables.add(table_name)

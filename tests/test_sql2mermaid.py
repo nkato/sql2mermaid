@@ -13,6 +13,7 @@ parent = Path(__file__).parent
         ("simple_case"),
         ("normal_case"),
         ("complex_case"),
+        ("case_with_extract"),
     ],
 )
 def test_convert(test_case: Path) -> None:
