@@ -1,5 +1,5 @@
-def is_pre_tables_mark(x: str) -> bool:
-    if x.upper() == "FROM":
+def is_pre_tables_mark(x: str, y: str) -> bool:
+    if x.upper() == "FROM" and not y.upper() == "EXTRACT":
         return True
     elif "JOIN" in x.upper():
         return True
