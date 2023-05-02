@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, List
 
 
 @dataclass
@@ -11,9 +11,9 @@ class Dependency:
 
 class Dependencies:
     def __init__(self) -> None:
-        self.values: List[Dependency] = []
+        self.values: list[Dependency] = []
 
-    def __call__(self) -> List[Dependency]:
+    def __call__(self) -> list[Dependency]:
         return self.values
 
     def __iter__(self) -> Iterator[Dependency]:
