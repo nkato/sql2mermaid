@@ -1,5 +1,4 @@
-from typing import List
-from collections.abc import Iterator
+from typing import Iterator, List
 
 
 class Tables:
