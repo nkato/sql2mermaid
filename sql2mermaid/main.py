@@ -61,7 +61,10 @@ def extract_leafs(tables: Tables, dependencies: Dependencies) -> Tuple[Tables, T
 
 
 def generate_mermaid(
-    internals: Tables, leafs: Tables, dependencies: Dependencies, display_join: Literal["none", "upper", "lower"],
+    internals: Tables,
+    leafs: Tables,
+    dependencies: Dependencies,
+    display_join: Literal["none", "upper", "lower"],
 ) -> str:
     res = "graph LR\n\n"
     for table in internals:

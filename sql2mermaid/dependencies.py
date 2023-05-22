@@ -1,5 +1,6 @@
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, List
+from typing import List
 
 
 @dataclass

@@ -1,9 +1,7 @@
 def is_pre_tables_mark(x: str, y: str) -> bool:
     if x.upper() == "FROM" and y.upper() != "EXTRACT":
         return True
-    elif "JOIN" in x.upper():
-        return True
-    return False
+    return "JOIN" in x.upper()
 
 
 def remove_quotes(x: str) -> str:
