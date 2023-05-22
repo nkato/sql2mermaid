@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Tuple
 
 import sqlparse
 
@@ -10,10 +10,13 @@ from .utils import is_pre_tables_mark, remove_quotes
 def is_ignorable(x: sqlparse.sql.Token) -> bool:
     if x.ttype in (sqlparse.tokens.Newline, sqlparse.tokens.Whitespace, sqlparse.tokens.Comment):
         return True
-    return isinstance(x, sqlparse.sql.Comment) or "Comment" in str(x.ttype)
+    elif isinstance(x, sqlparse.sql.Comment) or "Comment" in str(x.ttype):
+        return True
+    else:
+        return False
 
 
-def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
+def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
     tables = Tables()
     tables.add(root_name)
     dependencies = Dependencies()
@@ -38,7 +41,7 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
             current_table = table_name
         elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value, parsed[i - 3].value):  # FROM or JOIN
             table_name = remove_quotes(parsed[i + 1].value)
-            if table_name != "(":
+            if not table_name == "(":
                 tables.add(table_name)
                 dep = Dependency(current_table, token.value, table_name)
                 if dep not in dependencies:
@@ -50,7 +53,7 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
     return tables, dependencies
 
 
-def extract_leafs(tables: Tables, dependencies: Dependencies) -> tuple[Tables, Tables]:
+def extract_leafs(tables: Tables, dependencies: Dependencies) -> Tuple[Tables, Tables]:
     internals = Tables()
     leafs = tables.copy()
     for dep in dependencies:
@@ -61,10 +64,7 @@ def extract_leafs(tables: Tables, dependencies: Dependencies) -> tuple[Tables, T
 
 
 def generate_mermaid(
-    internals: Tables,
-    leafs: Tables,
-    dependencies: Dependencies,
-    display_join: Literal["none", "upper", "lower"],
+    internals: Tables, leafs: Tables, dependencies: Dependencies, display_join: Literal["none", "upper", "lower"]
 ) -> str:
     res = "graph LR\n\n"
     for table in internals:
@@ -89,4 +89,5 @@ def generate_mermaid(
 def convert(query: str, *, root_name: str = "root", display_join: Literal["none", "upper", "lower"] = "none") -> str:
     tables, dependencies = analyze_query(query, root_name)
     internals, leafs = extract_leafs(tables, dependencies)
-    return generate_mermaid(internals, leafs, dependencies, display_join)
+    mermaid_text = generate_mermaid(internals, leafs, dependencies, display_join)
+    return mermaid_text

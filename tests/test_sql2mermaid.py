@@ -17,8 +17,11 @@ parent = Path(__file__).parent
     ],
 )
 def test_convert(test_case: Path) -> None:
-    query = Path(parent / test_case / "query.sql").read_text()
-    expected = Path(parent / test_case / "expected.txt").read_text()
+    with open(parent / test_case / "query.sql", "r") as f:
+        query = f.read()
+    with open(parent / test_case / "expected.txt", "r") as f:
+        expected = f.read()
+
     got = sql2mermaid.convert(query)
     assert got == expected
 
@@ -32,8 +35,11 @@ def test_convert(test_case: Path) -> None:
     ],
 )
 def test_convert_with_upper(test_case: Path) -> None:
-    query = Path(parent / test_case / "query.sql").read_text()
-    expected = Path(parent / test_case / "expected_with_upper.txt").read_text()
+    with open(parent / test_case / "query.sql", "r") as f:
+        query = f.read()
+    with open(parent / test_case / "expected_with_upper.txt", "r") as f:
+        expected = f.read()
+
     got = sql2mermaid.convert(query, root_name="changed_root_name", display_join="upper")
     assert got == expected
 
@@ -47,7 +53,10 @@ def test_convert_with_upper(test_case: Path) -> None:
     ],
 )
 def test_convert_with_lower(test_case: Path) -> None:
-    query = Path(parent / test_case / "query.sql").read_text()
-    expected = Path(parent / test_case / "expected_with_lower.txt").read_text()
+    with open(parent / test_case / "query.sql", "r") as f:
+        query = f.read()
+    with open(parent / test_case / "expected_with_lower.txt", "r") as f:
+        expected = f.read()
+
     got = sql2mermaid.convert(query, root_name="changed_root_name", display_join="lower")
     assert got == expected

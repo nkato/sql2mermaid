@@ -1,11 +1,11 @@
-from collections.abc import Iterator
+from typing import Iterator, List
 
 
 class Tables:
     def __init__(self) -> None:
-        self.values: list[str] = []
+        self.values: List[str] = []
 
-    def __call__(self) -> list[str]:
+    def __call__(self) -> List[str]:
         return self.values
 
     def __iter__(self) -> Iterator[str]:
