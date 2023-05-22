@@ -59,6 +59,14 @@ You can change the name of the root and whether the FROM, JOIN clause is display
 
 <img src="https://raw.githubusercontent.com/nkato/sql2mermaid/main/img/option-example.png" width="1200px">
 
+## How to Develop
+
+If you've installed Poetry on your machine, you can test it by doing the following:
+
+```shell
+poetry run tox
+```
+
 ## Author
 
 - [nkato](https://github.com/nkato)
