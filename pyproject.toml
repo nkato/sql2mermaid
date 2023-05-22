@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sql2mermaid"
-version = "1.1.0"
+version = "1.1.1"
 description = "Convert SQL table dependencies to mermaid.js"
 authors = ["nkato <naokato.aq@gmail.com>"]
 readme = "README.md"
