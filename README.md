@@ -3,7 +3,7 @@
 ---
 
 ![PyPI - License](https://img.shields.io/pypi/l/sql2mermaid)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/nkato/sql2mermaid/python-tox.yml?event=push&label=pytest%20with%20py38)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/nkato/sql2mermaid/python-tox.yml?event=push&label=pytest%20with%20py39)
 ![PyPI](https://img.shields.io/pypi/v/sql2mermaid)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/sql2mermaid)
 
@@ -13,7 +13,7 @@ Convert SQL table dependencies to the text of [mermaid.js](https://mermaid.js.or
 
 # Required
 
-Python >=3.8.1
+Python >=3.9
 
 ## Installation
 
