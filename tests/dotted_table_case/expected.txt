@@ -1,0 +1,9 @@
+graph LR
+
+root([root])
+
+project.dataset.table_a[(project.dataset.table_a)]
+project.dataset.table_b[(project.dataset.table_b)]
+
+root --> project.dataset.table_a
+root --> project.dataset.table_b

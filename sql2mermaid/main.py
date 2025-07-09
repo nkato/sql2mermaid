@@ -13,6 +13,35 @@ def is_ignorable(x: sqlparse.sql.Token) -> bool:
     return isinstance(x, sqlparse.sql.Comment) or "Comment" in str(x.ttype)
 
 
+def extract_table_name(tokens: list, start_index: int) -> str:
+    """
+    Extract table name from tokens starting at start_index.
+    Handles dotted table names like project.dataset.table_name
+    """
+    if start_index >= len(tokens):
+        return ""
+
+    table_parts = []
+    i = start_index
+
+    # First token should be a Name token
+    if tokens[i].ttype is sqlparse.tokens.Name:
+        table_parts.append(remove_quotes(tokens[i].value))
+        i += 1
+    else:
+        return ""
+
+    # Check for dotted continuation
+    while i < len(tokens) - 1:
+        if tokens[i].value == "." and tokens[i + 1].ttype is sqlparse.tokens.Name:
+            table_parts.append(remove_quotes(tokens[i + 1].value))
+            i += 2
+        else:
+            break
+
+    return ".".join(table_parts)
+
+
 def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
     tables = Tables()
     tables.add(root_name)
@@ -37,8 +66,8 @@ def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
             tables.add(table_name)
             current_table = table_name
         elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value, parsed[i - 3].value):  # FROM or JOIN
-            table_name = remove_quotes(parsed[i + 1].value)
-            if table_name != "(":
+            table_name = extract_table_name(parsed, i + 1)
+            if table_name and table_name != "(":
                 tables.add(table_name)
                 dep = Dependency(current_table, token.value, table_name)
                 if dep not in dependencies:

@@ -14,6 +14,7 @@ parent = Path(__file__).parent
         ("normal_case"),
         ("complex_case"),
         ("case_with_extract"),
+        ("dotted_table_case"),
     ],
 )
 def test_convert(test_case: Path) -> None:
