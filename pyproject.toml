@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sql2mermaid"
-version = "1.1.1"
+version = "1.2.0"
 description = "Convert SQL table dependencies to mermaid.js"
 authors = ["nkato <naokato.aq@gmail.com>"]
 readme = "README.md"
@@ -8,7 +8,7 @@ license = "MIT"
 repository = "https://github.com/nkato/sql2mermaid"
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.9.0"
 sqlparse = "^0.4.3"
 
 [tool.poetry.group.dev.dependencies]
