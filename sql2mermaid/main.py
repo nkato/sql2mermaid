@@ -107,7 +107,11 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
                 cte_definition_level = -1
         elif token.value == "," and is_in_with:
             last_token_was_with_or_comma = True
-        elif token.ttype is sqlparse.tokens.Name and is_in_with and (not last_token_was_from_or_join or last_token_was_with_or_comma):  # CTE name
+        elif (
+            token.ttype is sqlparse.tokens.Name
+            and is_in_with
+            and (not last_token_was_from_or_join or last_token_was_with_or_comma)
+        ):  # CTE name
             # Check if this is a CTE definition (not a reference)
             # Look ahead to see if this is followed by 'AS'
             if i + 1 < len(parsed) and parsed[i + 1].ttype is sqlparse.tokens.Keyword and parsed[i + 1].value.upper() == "AS":
@@ -116,7 +120,9 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
                 current_table = table_name
                 cte_definition_level = current_indent_level
             last_token_was_with_or_comma = False
-        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value, parsed[i - 3].value if i >= 3 else ""):  # FROM or JOIN
+        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(
+            token.value, parsed[i - 3].value if i >= 3 else ""
+        ):  # FROM or JOIN
             table_name = extract_table_name(parsed, i + 1)
             if table_name and table_name != "(":
                 tables.add(table_name)
