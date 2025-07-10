@@ -27,7 +27,7 @@ build-backend = "poetry.core.masonry.api"
 line-length = 128
 
 [tool.flake8]
-ignore = "E203,"
+extend-ignore = "E203,E501,E701"
 max-line-length = 128
 max-complexity = 18
 exclude = ".venv,.tox,.mypy_cache,.git,__pycache__"
