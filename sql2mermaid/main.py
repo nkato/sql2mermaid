@@ -128,6 +128,7 @@ def generate_mermaid(
     display_join: Literal["none", "upper", "lower"],
 ) -> str:
     """Generate Mermaid graph syntax from tables and dependencies."""
+
     def get_display_name(table_name: str) -> str:
         """Get display name for a table. Convert root1, root2, etc. to 'root'"""
         if table_name.startswith("root") and len(table_name) > 4 and table_name[4:].isdigit():
