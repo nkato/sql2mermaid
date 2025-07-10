@@ -81,6 +81,10 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
     current_table = ""
     current_indent_level = 0
     is_in_with = False
+    with_indent_level = -1  # Track the indent level where WITH was found
+    cte_definition_level = -1  # Track the indent level of current CTE definition
+    last_token_was_from_or_join = False  # Track if the last keyword was FROM or JOIN
+    last_token_was_with_or_comma = False  # Track if the last token was WITH or comma
 
     # Get flattened tokens by parsing SQL queries.
     parsed = [x for x in sqlparse.parse(query)[0].flatten() if not is_ignorable(x)]
@@ -88,24 +92,62 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
     for i, token in enumerate(parsed):
         if token.ttype is sqlparse.tokens.Keyword.CTE:  # WITH clause
             is_in_with = True
+            with_indent_level = current_indent_level
+            last_token_was_with_or_comma = True
         elif token.value == "(":
             current_indent_level += 1
         elif token.value == ")":
             current_indent_level -= 1
-        elif token.ttype is sqlparse.tokens.Name and current_indent_level == 0 and is_in_with:  # Sub table
-            table_name = remove_quotes(token.value)
-            tables.add(table_name)
-            current_table = table_name
-        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(token.value, parsed[i - 3].value):  # FROM or JOIN
+            # Reset is_in_with when we leave the WITH clause scope
+            if is_in_with and current_indent_level < with_indent_level:
+                is_in_with = False
+                with_indent_level = -1
+            # Reset CTE definition level when we leave the CTE definition
+            if cte_definition_level >= 0 and current_indent_level < cte_definition_level:
+                cte_definition_level = -1
+        elif token.value == "," and is_in_with:
+            last_token_was_with_or_comma = True
+        elif (
+            token.ttype is sqlparse.tokens.Name
+            and is_in_with
+            and (not last_token_was_from_or_join or last_token_was_with_or_comma)
+        ):  # CTE name
+            # Check if this is a CTE definition (not a reference)
+            # Look ahead to see if this is followed by 'AS'
+            if i + 1 < len(parsed) and parsed[i + 1].ttype is sqlparse.tokens.Keyword and parsed[i + 1].value.upper() == "AS":
+                table_name = remove_quotes(token.value)
+                tables.add(table_name)
+                current_table = table_name
+                cte_definition_level = current_indent_level
+            last_token_was_with_or_comma = False
+        elif token.ttype is sqlparse.tokens.Keyword and is_pre_tables_mark(
+            token.value, parsed[i - 3].value if i >= 3 else ""
+        ):  # FROM or JOIN
             table_name = extract_table_name(parsed, i + 1)
             if table_name and table_name != "(":
                 tables.add(table_name)
-                dep = Dependency(current_table, token.value, table_name)
+                # Use the appropriate source table based on context
+                source_table = current_table if current_table else root_name
+                dep = Dependency(source_table, token.value, table_name)
                 if dep not in dependencies:
                     dependencies.add(dep)
-        elif token.ttype is sqlparse.tokens.Keyword.DML and token.value.upper() == "SELECT" and current_indent_level == 0:
-            is_in_with = False
-            current_table = root_name
+            last_token_was_from_or_join = True
+            last_token_was_with_or_comma = False
+        elif token.ttype is sqlparse.tokens.Keyword.DML and token.value.upper() == "SELECT":
+            # When we encounter a SELECT at the same or higher level than the WITH clause,
+            # and we're not in a subquery of the WITH clause, we're in the main query
+            if is_in_with and current_indent_level <= with_indent_level:
+                is_in_with = False
+                current_table = root_name
+            elif not is_in_with and current_indent_level == 0:
+                current_table = root_name
+            last_token_was_from_or_join = False
+            last_token_was_with_or_comma = False
+        else:
+            # Reset the FROM/JOIN flag for non-name tokens
+            if token.ttype is not sqlparse.tokens.Name:
+                last_token_was_from_or_join = False
+                last_token_was_with_or_comma = False
 
     return tables, dependencies
 

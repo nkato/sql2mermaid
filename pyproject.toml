@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sql2mermaid"
-version = "2.0.0"
+version = "2.1.0"
 description = "Convert SQL table dependencies to mermaid.js"
 authors = ["nkato <naokato.aq@gmail.com>"]
 readme = "README.md"
@@ -27,7 +27,7 @@ build-backend = "poetry.core.masonry.api"
 line-length = 128
 
 [tool.flake8]
-ignore = "E203,"
+extend-ignore = "E203,E501,E701"
 max-line-length = 128
 max-complexity = 18
 exclude = ".venv,.tox,.mypy_cache,.git,__pycache__"

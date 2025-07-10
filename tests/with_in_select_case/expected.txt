@@ -1,0 +1,30 @@
+graph LR
+
+test_cte_1([test_cte_1])
+test_cte_2([test_cte_2])
+test_cte_3([test_cte_3])
+test_cte_4([test_cte_4])
+test_cte_5([test_cte_5])
+test_cte_6([test_cte_6])
+test_cte_7([test_cte_7])
+root([root])
+
+test_table_1[(test_table_1)]
+test_table_2[(test_table_2)]
+test_table_3[(test_table_3)]
+test_table_4[(test_table_4)]
+
+test_cte_1 --> test_table_1
+test_cte_2 --> test_table_2
+test_cte_2 --> test_cte_1
+test_cte_3 --> test_cte_1
+test_cte_4 --> test_table_3
+test_cte_5 --> test_cte_4
+test_cte_6 --> test_cte_2
+test_cte_7 --> test_cte_2
+test_cte_7 --> test_table_4
+test_cte_7 --> test_cte_1
+root --> test_cte_3
+root --> test_cte_6
+root --> test_cte_7
+root --> test_cte_5
