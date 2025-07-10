@@ -1,0 +1,20 @@
+graph LR
+
+first_cte([first_cte])
+root1([root])
+second_cte([second_cte])
+root2([root])
+
+table1[(table1)]
+table2[(table2)]
+table3[(table3)]
+table4[(table4)]
+table5[(table5)]
+
+first_cte --> table1
+root1 --> first_cte
+root1 --> table2
+second_cte --> table3
+second_cte --> table4
+root2 --> second_cte
+root2 --> table5
