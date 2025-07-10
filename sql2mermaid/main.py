@@ -1,4 +1,4 @@
-from typing import Literal, Tuple
+from typing import Literal
 
 import sqlparse
 
@@ -8,16 +8,46 @@ from .utils import is_pre_tables_mark, remove_quotes
 
 
 def is_ignorable(x: sqlparse.sql.Token) -> bool:
+    """Check if a token should be ignored (whitespace, newline, comment)."""
     if x.ttype in (sqlparse.tokens.Newline, sqlparse.tokens.Whitespace, sqlparse.tokens.Comment):
         return True
     return isinstance(x, sqlparse.sql.Comment) or "Comment" in str(x.ttype)
 
 
-def extract_table_name(tokens: list, start_index: int) -> str:
-    """
-    Extract table name from tokens starting at start_index.
-    Handles dotted table names like project.dataset.table_name
-    """
+def split_statements(query: str) -> list[str]:
+    """Split a query into individual SQL statements."""
+    statements = []
+    parsed = sqlparse.parse(query)
+
+    for statement in parsed:
+        stmt_str = str(statement).strip()
+        if stmt_str:
+            statements.append(stmt_str)
+
+    return statements
+
+
+def is_select_statement(statement: str) -> bool:
+    """Check if a statement is a SELECT statement."""
+    parsed = sqlparse.parse(statement)
+    if not parsed:
+        return False
+
+    # Get the first meaningful token
+    for token in parsed[0].tokens:
+        if not is_ignorable(token):
+            if token.ttype is sqlparse.tokens.Keyword.DML:
+                return token.value.upper() == "SELECT"
+            elif token.ttype is sqlparse.tokens.Keyword.CTE:
+                return True  # WITH clause followed by SELECT
+            else:
+                return False
+
+    return False
+
+
+def extract_table_name(tokens: list[sqlparse.sql.Token], start_index: int) -> str:
+    """Extract table name from tokens, handling dotted table names."""
     if start_index >= len(tokens):
         return ""
 
@@ -42,7 +72,8 @@ def extract_table_name(tokens: list, start_index: int) -> str:
     return ".".join(table_parts)
 
 
-def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
+def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
+    """Analyze a SQL query and extract tables and their dependencies."""
     tables = Tables()
     tables.add(root_name)
     dependencies = Dependencies()
@@ -79,7 +110,8 @@ def analyze_query(query: str, root_name: str) -> Tuple[Tables, Dependencies]:
     return tables, dependencies
 
 
-def extract_leafs(tables: Tables, dependencies: Dependencies) -> Tuple[Tables, Tables]:
+def extract_leafs(tables: Tables, dependencies: Dependencies) -> tuple[Tables, Tables]:
+    """Separate tables into internal nodes and leaf nodes based on dependencies."""
     internals = Tables()
     leafs = tables.copy()
     for dep in dependencies:
@@ -95,13 +127,23 @@ def generate_mermaid(
     dependencies: Dependencies,
     display_join: Literal["none", "upper", "lower"],
 ) -> str:
+    """Generate Mermaid graph syntax from tables and dependencies."""
+
+    def get_display_name(table_name: str) -> str:
+        """Get display name for a table. Convert root1, root2, etc. to 'root'"""
+        if table_name.startswith("root") and len(table_name) > 4 and table_name[4:].isdigit():
+            return "root"
+        return table_name
+
     res = "graph LR\n\n"
     for table in internals:
-        res += f"{table}([{table}])\n"
+        display_name = get_display_name(table)
+        res += f"{table}([{display_name}])\n"
 
     res += "\n"
     for table in leafs:
-        res += f"{table}[({table})]\n"
+        display_name = get_display_name(table)
+        res += f"{table}[({display_name})]\n"
 
     res += "\n"
     for dep in dependencies:
@@ -116,6 +158,32 @@ def generate_mermaid(
 
 
 def convert(query: str, *, root_name: str = "root", display_join: Literal["none", "upper", "lower"] = "none") -> str:
-    tables, dependencies = analyze_query(query, root_name)
-    internals, leafs = extract_leafs(tables, dependencies)
-    return generate_mermaid(internals, leafs, dependencies, display_join)
+    """Convert SQL query to Mermaid graph, handling multiple SELECT statements."""
+    # Split the query into individual statements
+    statements = split_statements(query)
+
+    # Filter out non-SELECT statements
+    select_statements = [stmt for stmt in statements if is_select_statement(stmt)]
+
+    if not select_statements:
+        # If no SELECT statements, fall back to original behavior
+        tables, dependencies = analyze_query(query, root_name)
+        internals, leafs = extract_leafs(tables, dependencies)
+        return generate_mermaid(internals, leafs, dependencies, display_join)
+
+    # Process multiple SELECT statements
+    all_tables = Tables()
+    all_dependencies = Dependencies()
+
+    for i, stmt in enumerate(select_statements):
+        current_root = f"{root_name}{i+1}" if len(select_statements) > 1 else root_name
+        tables, dependencies = analyze_query(stmt, current_root)
+
+        # Merge tables and dependencies
+        for table in tables:
+            all_tables.add(table)
+        for dep in dependencies:
+            all_dependencies.add(dep)
+
+    internals, leafs = extract_leafs(all_tables, all_dependencies)
+    return generate_mermaid(internals, leafs, all_dependencies, display_join)
