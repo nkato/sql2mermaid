@@ -1,0 +1,9 @@
+graph LR
+
+test_cte_1([test_cte_1])
+root([root])
+
+test_table_1[(test_table_1)]
+
+test_cte_1 --> test_table_1
+root --> test_cte_1

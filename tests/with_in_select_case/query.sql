@@ -1,7 +1,7 @@
 SELECT *
 FROM (
   WITH test_cte_1 AS (
-    SELECT *
+    SELECT id AS user_id
     FROM test_table_1
     WHERE 1 = 1
   ),
@@ -28,7 +28,7 @@ FROM (
 
   test_cte_5 AS (
     SELECT *
-    FROM test_cte_4
+    FROM test_cte_4 AS cte_4
     GROUP BY 1
   ),
 
