@@ -117,7 +117,9 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
             token.ttype is sqlparse.tokens.Name
             and is_in_with
             and (not last_token_was_from_or_join or last_token_was_with_or_comma)
-            and (not is_in_select or current_indent_level > select_indent_level)  # Allow CTE detection if we're in a deeper scope than the current SELECT
+            and (
+                not is_in_select or current_indent_level > select_indent_level
+            )  # Allow CTE detection if we're in a deeper scope than the current SELECT
         ):  # CTE name
             # Check if this is a CTE definition (not a reference)
             # Look ahead to see if this is followed by 'AS'
