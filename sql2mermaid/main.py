@@ -85,6 +85,8 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
     cte_definition_level = -1  # Track the indent level of current CTE definition
     last_token_was_from_or_join = False  # Track if the last keyword was FROM or JOIN
     last_token_was_with_or_comma = False  # Track if the last token was WITH or comma
+    is_in_select = False  # Track if we're inside a SELECT statement
+    select_indent_level = -1  # Track the indent level where SELECT was found
 
     # Get flattened tokens by parsing SQL queries.
     parsed = [x for x in sqlparse.parse(query)[0].flatten() if not is_ignorable(x)]
@@ -105,12 +107,19 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
             # Reset CTE definition level when we leave the CTE definition
             if cte_definition_level >= 0 and current_indent_level < cte_definition_level:
                 cte_definition_level = -1
+            # Reset is_in_select when we leave the SELECT scope
+            if is_in_select and current_indent_level < select_indent_level:
+                is_in_select = False
+                select_indent_level = -1
         elif token.value == "," and is_in_with:
             last_token_was_with_or_comma = True
         elif (
             token.ttype is sqlparse.tokens.Name
             and is_in_with
             and (not last_token_was_from_or_join or last_token_was_with_or_comma)
+            and (
+                not is_in_select or current_indent_level > select_indent_level
+            )  # Allow CTE detection if we're in a deeper scope than the current SELECT
         ):  # CTE name
             # Check if this is a CTE definition (not a reference)
             # Look ahead to see if this is followed by 'AS'
@@ -134,13 +143,19 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
             last_token_was_from_or_join = True
             last_token_was_with_or_comma = False
         elif token.ttype is sqlparse.tokens.Keyword.DML and token.value.upper() == "SELECT":
-            # When we encounter a SELECT at the same or higher level than the WITH clause,
-            # and we're not in a subquery of the WITH clause, we're in the main query
+            # Track that we're in a SELECT statement
+            is_in_select = True
+            select_indent_level = current_indent_level
+
+            # Only reset WITH scope if we're actually in a WITH clause
+            # and the SELECT is at the same or higher level
             if is_in_with and current_indent_level <= with_indent_level:
                 is_in_with = False
                 current_table = root_name
             elif not is_in_with and current_indent_level == 0:
                 current_table = root_name
+            # If we're not currently in a WITH clause, don't change current_table
+            # This allows nested WITH clauses to work correctly
             last_token_was_from_or_join = False
             last_token_was_with_or_comma = False
         else:
