@@ -123,10 +123,12 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
         ):  # CTE name
             # Check if this is a CTE definition (not a reference)
             # Look ahead to see if this is followed by 'AS' and then '('
-            if (i + 2 < len(parsed)
+            if (
+                i + 2 < len(parsed)
                 and parsed[i + 1].ttype is sqlparse.tokens.Keyword
                 and parsed[i + 1].value.upper() == "AS"
-                and parsed[i + 2].value == "("):
+                and parsed[i + 2].value == "("
+            ):
                 table_name = remove_quotes(token.value)
                 tables.add(table_name)
                 current_table = table_name
