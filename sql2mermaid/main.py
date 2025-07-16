@@ -122,8 +122,11 @@ def analyze_query(query: str, root_name: str) -> tuple[Tables, Dependencies]:
             )  # Allow CTE detection if we're in a deeper scope than the current SELECT
         ):  # CTE name
             # Check if this is a CTE definition (not a reference)
-            # Look ahead to see if this is followed by 'AS'
-            if i + 1 < len(parsed) and parsed[i + 1].ttype is sqlparse.tokens.Keyword and parsed[i + 1].value.upper() == "AS":
+            # Look ahead to see if this is followed by 'AS' and then '('
+            if (i + 2 < len(parsed)
+                and parsed[i + 1].ttype is sqlparse.tokens.Keyword
+                and parsed[i + 1].value.upper() == "AS"
+                and parsed[i + 2].value == "("):
                 table_name = remove_quotes(token.value)
                 tables.add(table_name)
                 current_table = table_name

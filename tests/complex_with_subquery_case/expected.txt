@@ -1,0 +1,19 @@
+graph LR
+
+cte1([cte1])
+cte2([cte2])
+cte3([cte3])
+cte4([cte4])
+root([root])
+
+project1.dataset1.table1[(project1.dataset1.table1)]
+project2.dataset2.table2[(project2.dataset2.table2)]
+project3.dataset3.table3[(project3.dataset3.table3)]
+
+cte1 --> project1.dataset1.table1
+cte2 --> project2.dataset2.table2
+cte3 --> project3.dataset3.table3
+cte4 --> cte1
+cte4 --> cte2
+cte4 --> cte3
+root --> cte4

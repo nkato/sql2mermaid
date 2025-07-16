@@ -18,6 +18,7 @@ parent = Path(__file__).parent
         ("multi_statement_case"),
         ("with_in_select_case"),
         ("nested_with_case"),
+        ("complex_with_subquery_case"),
     ],
 )
 def test_convert(test_case: Path) -> None:
